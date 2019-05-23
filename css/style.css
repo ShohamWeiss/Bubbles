@@ -1,0 +1,12 @@
+html {
+  background-color: black;
+}
+
+canvas {
+  background-color: white;
+}
+.container {
+  position: relative;
+  margin-left: 4vw;
+  margin-top: 5vh;
+}
