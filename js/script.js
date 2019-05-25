@@ -1,5 +1,3 @@
-
-
 var screenWidth = window.innerWidth*(90/100);
 var screenHeight = screenWidth*(6/12);
 var objectWidth = screenWidth/16;
