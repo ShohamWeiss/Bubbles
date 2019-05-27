@@ -4,7 +4,7 @@ var objectWidth = screenWidth/16;
 var objectHeight = objectWidth;
 var objectRealHeight = objectWidth*(0.6)
 var objectsZ = objectHeight -objectRealHeight;
-var playerMaxSteps = 15;
+var playerMaxSteps = 20;
 
 var myGameArea = {
     canvas : document.createElement("canvas"),
@@ -29,29 +29,34 @@ function updateGameArea() {
   for (var j = 0; j < explosions.length; j++) {
     explosions[j].update();
   }
+  // for (var j = 0; j < editing.length; j++) {
+  //   editing[j].update();
+  // }
 }
 
 var objects = [];
 var explosions = [];
 var boxes = [];
-var lines = [];
+var editing = [];
 var player1;
 var player2;
 
 function startGame() {
     myGameArea.start();
     for (var j = 0; j < 12;j++) {
-      // lines.push(new line(0, j*(objectRealHeight) + objectsZ, screenWidth, 5, "blue"));
-      for (var k = 1; k < 16; k++) {
-        // lines.push( new line(k*objectWidth, 0, 5, screenHeight, "red"));
+      // editing.push(new line(0, j*(objectRealHeight) + objectsZ, screenWidth, 5, "blue"));
+      for (var k = 0; k < 16; k++) {
+        // editing.push( new line(k*objectWidth, 0, 5, screenHeight, "red"));
+        if (j < 2 && k < 2 || j > 9 && k > 13) {
+          continue;
+        }
         if (Math.floor(Math.random() * 2) == 0) {
           boxes.push(new box(k*objectWidth,j*(objectRealHeight) + objectsZ));
         }
       }
     }
-    alert(boxes.length);
-    player1 = new player(0,50,"ninja");
-    // player2 = new player(objectWidth*3,0,"ninja");
+    player1 = new player(0,objectsZ,"ninja");
+    player2 = new player(objectWidth*15,objectHeight*7,"ninja");
 }
 
 //** For Editing
@@ -60,7 +65,6 @@ function line(x,y,width,height, color) {
     this.y = y;
     this.width = width;
     this.height = height;
-    objects.push(this);
     this.update = function() {
       var ctx = myGameArea.context;
       ctx.fillStyle = color;
@@ -79,64 +83,78 @@ function player(x,y,character) {
   this.direction = "down";
   this.steps = playerMaxSteps;
   this.frame = 0;
-  this.speed = 9;
-  this.bombCount = 10;
-  this.explosionRange = 5;
+  this.speed = 6;
+  this.bombCount = 1;
+  this.explosionRange = 2;
+  this.stuck = false;
   this.image = new Image();
-  this.image.src = "../sprites/" + character + "/" + this.direction + this.frame + ".svg";
+  this.image.src = "../sprites/" + character + "/" + this.direction + this.frame + ".png";
   this.update = function(){
       var ctx = myGameArea.context;
       ctx.drawImage(this.image,this.x, this.y, this.width, this.height);
-      this.realx = this.x + 15;
+      this.realx = this.x + 20;
       this.realy = this.y + 10;
-      this.realWidth = this.width - 25;
+      this.realWidth = this.width - 35;
       this.realHeight = objectRealHeight*(0.5);
-      ctx.fillStyle = "rgba(50,50,50,0.5)"
-      ctx.fillRect(this.realx,this.realy,this.realWidth,this.realHeight);
+      // ctx.fillStyle = "rgba(50,50,50,0.5)"
+      // ctx.fillRect(this.realx,this.realy,this.realWidth,this.realHeight);
       move(this);
-      // this.frame = this.steps % 5;
-      this.image.src = "../sprites/" + character+ "/" + this.direction + this.frame + ".svg";
+      this.image.src = "../sprites/" + character+ "/" + this.direction + this.frame + ".png";
+  }
+  this.transform = function(){
+      this.direction = "stuck";
+      this.frame = 0;
+      this.stuck = true;
   }
 }
 
 function move(object) {
   if (object.steps < playerMaxSteps) {
-    if (object.direction == "right" && checkCollision(object,object.speed,0)) {
+    if (object.direction == "right" && checkCollision(object,object.speed,0,objects)) {
       object.x+= object.speed;
       object.steps++;
+      object.frame = Math.floor(object.steps/10) % 5;
     }
-    if (object.direction == "left" && checkCollision(object,-object.speed,0)) {
+    if (object.direction == "left" && checkCollision(object,-object.speed,0,objects)) {
       object.x-= object.speed;
       object.steps++;
+      object.frame = Math.floor(object.steps/10) % 5;
     }
-    if (object.direction == "up" && checkCollision(object,0,-object.speed)) {
+    if (object.direction == "up" && checkCollision(object,0,-object.speed,objects)) {
       object.y-= object.speed;
       object.steps++;
+      object.frame = 0;
     }
-    if (object.direction == "down" && checkCollision(object,0,object.speed)) {
+    if (object.direction == "down" && checkCollision(object,0,object.speed,objects)) {
       object.y+= object.speed;
       object.steps++;
+      object.frame = Math.floor(object.steps/10) % 5;
     }
   }
 }
 
-function checkCollision(collider, plusX, plusY) {
+function checkCollision(collider, plusX, plusY, collided) {
   if (collider.realx + plusX < 0 || collider.realx + collider.realWidth + plusX > screenWidth || collider.realy + plusY < objectsZ || collider.y + collider.height + plusY > screenHeight) {
     return false;
   }
   for (var j = 0; j < objects.length; j++) {
-    if (objects[j] != collider && collider.realx + collider.realWidth + plusX > objects[j].x && collider.realx + plusX < objects[j].x + objects[j].width
-     && collider.realy + collider.realHeight + plusY > objects[j].y && collider.realy + plusY < objects[j].y + objectRealHeight) {
-       if (collider.type == "character" && objects[j].type == "box") {
+    if (collided[j] != collider && collider.realx + collider.realWidth + plusX > collided[j].x && collider.realx + plusX < collided[j].x + collided[j].width
+     && collider.realy + collider.realHeight + plusY > collided[j].y && collider.realy + plusY < collided[j].y + objectRealHeight) {
+       if (collided[j].type == "box") {
+         collider.steps = playerMaxSteps;
          return false;
        }
-       if (collider.type == "explosion" && objects[j] == "character") {
-         alert(object[i].type + " hurt");
-         return false;
+       if (collided[j].type == "plusSpeed") {
+         remove(collided[j],collided);
+         collider.speed += 1;
        }
-       if (collider.type == "bomb" && objects[j].type == "box") {
-         objects[j].transform();
-         return false;
+       if (collided[j].type == "plusRange") {
+         remove(collided[j],collided);
+         collider.explosionRange += 1;
+       }
+       if (collided[j].type == "plusBomb") {
+         remove(collided[j],collided);
+         collider.bombCount += 1;
        }
     }
   }
@@ -146,19 +164,19 @@ function checkCollision(collider, plusX, plusY) {
 document.addEventListener('keydown', keys);
 
 function keys(e) {
-  if (e.code == "ArrowRight") {
+  if (e.code == "ArrowRight" && !player1.stuck) {
     player1.direction = "right";
     player1.steps = 0;
   }
-  if (e.code == "ArrowLeft") {
+  if (!player1.stuck && e.code == "ArrowLeft") {
     player1.direction = "left";
     player1.steps = 0;
   }
-  if (e.code == "ArrowUp") {
+  if (!player1.stuck && e.code == "ArrowUp") {
     player1.direction = "up";
     player1.steps = 0;
   }
-  if (e.code == "ArrowDown") {
+  if (!player1.stuck && e.code == "ArrowDown") {
     player1.direction = "down";
     player1.steps = 0;
   }
@@ -168,11 +186,33 @@ function keys(e) {
       player1.bombCount -= 1;
     }
   }
+  if (e.code == "KeyD") {
+    player2.direction = "right";
+    player2.steps = 0;
+  }
+  if (e.code == "KeyA") {
+    player2.direction = "left";
+    player2.steps = 0;
+  }
+  if (e.code == "KeyW") {
+    player2.direction = "up";
+    player2.steps = 0;
+  }
+  if (e.code == "KeyS") {
+    player2.direction = "down";
+    player2.steps = 0;
+  }
+  if (e.code == "ShiftLeft") {
+    if (player2.bombCount > 0) {
+      objects.push(new bomb(player2.x, player2.y, player2));
+      player2.bombCount -= 1;
+    }
+  }
 }
 
 function box(x,y) {
     objects.push(this);
-    this.prize = Math.floor(Math.random() * 4);
+    this.prize = Math.floor(Math.random() * 6);
     this.x = x;
     this.y = y;
     this.width = objectWidth;
@@ -182,28 +222,28 @@ function box(x,y) {
     this.image = new Image();
     this.update = function() {
       var ctx = myGameArea.context;
-      this.image.src = "../sprites/" + this.type + "/" + this.type + this.frame + ".svg";
+      this.image.src = "../sprites/" + this.type + "/" + this.type + this.frame + ".png";
       ctx.drawImage(this.image,this.x, this.y, this.width, this.height);
     }
     this.transform = function() {
-      if (this.prize == 0) {
+      if (this.prize < 3) {
+        remove(this,objects);
+      }
+      else if (this.prize == 4) {
         this.type = "plusSpeed";
       }
-      if (this.prize == 1) {
-        this.type = "plusSpeed";
-      }
-      if (this.prize == 2) {
+      else if (this.prize == 5) {
         this.type = "plusRange";
       }
-      if (this.prize == 3) {
+      else {
         this.type = "plusBomb";
       }
     }
 }
 
 function bomb(x,y,player) {
-    this.x = Math.floor( (x + objectWidth/3) / objectWidth) * objectWidth + 40;
-    this.y = Math.floor(y / objectRealHeight) * objectRealHeight + objectsZ;
+    this.x = Math.floor( (x + objectWidth/3) / objectWidth) * objectWidth;
+    this.y = Math.floor( (y + objectsZ) / objectRealHeight) * objectRealHeight;
     this.realx = this.x;
     this.realy = this.y;
     this.player = player;
@@ -214,13 +254,14 @@ function bomb(x,y,player) {
     this.frame = 0;
     this.type = "bomb";
     this.image = new Image();
-    this.image.src = "../sprites/" + this.type + "/" + this.type + this.frame + ".svg";
+    this.image.src = "../sprites/" + this.type + "/" + this.type + this.frame + ".png";
     this.counter = 300;
     this.update = function() {
       this.counter--;
+      this.frame = Math.floor(this.counter/7) % 5;
+      this.image.src = "../sprites/" + this.type + "/" + this.type + this.frame + ".png";
       if (Math.floor(this.counter/100) <= 0) {
         remove(this, objects);
-        objects.push(new explosion(bomb.x,bomb.y,bomb.player))
         explode(this,1,0);
         explode(this,-1,0);
         explode(this,0,1);
@@ -228,38 +269,80 @@ function bomb(x,y,player) {
         player.bombCount++;
       }
       var ctx = myGameArea.context;
-      ctx.font = "40px Arial";
-      ctx.fillText( Math.floor(this.counter/100), this.x + (objectWidth/3), this.y + objectHeight/1.5);
+      // ctx.font = "40px Arial";
+      // ctx.fillText( Math.floor(this.counter/100), this.x + (objectWidth/3), this.y + objectHeight/1.5);
       ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+    }
+    this.transform = function() {
+      this.counter = 0;
     }
 }
 
 function explode(bomb, xDir, yDir) {
-    for (var i = 1; i < bomb.player.explosionRange; i++) {
-      if (checkCollision(bomb, xDir*i*objectWidth, yDir*i*objectHeight - objectsZ + 10)) {
-        explosions.push(new explosion(bomb.x + xDir*i*objectWidth, bomb.y + yDir*i*objectHeight, bomb.player));
+  var leave = false;
+  var dir = "ver"
+  if (xDir != 0) {
+    dir = "hor";
+  }
+    for (var i = 0; i < bomb.player.explosionRange; i++) {
+      for (var j = 0; j < objects.length; j++) {
+        // editing.push(new dot(bomb.x + xDir*i*objectWidth + objectWidth/2, bomb.y + yDir*i*objectRealHeight + objectHeight/2, "yellow"));
+        if (bomb.x + xDir*i*objectWidth + objectWidth/2 > objects[j].x && bomb.x + xDir*i*objectWidth + objectWidth/2 < objects[j].x + objectWidth
+          && bomb.y + yDir*i*objectRealHeight + objectRealHeight/2 > objects[j].y && bomb.y + yDir*i*objectRealHeight + objectRealHeight/2 < objects[j].y + objectRealHeight) {
+            // editing.push(new dot(objects[j].x,objects[j].y, "red"));
+            if (objects[j].type == "character" || objects[j].type == "box" || objects[j].type == "explosion") {
+              leave = true;
+            }
+            objects[j].transform();
+            if (leave) {
+              break;
+            }
+          }
+          else {
+            explosions.push(new explosion(bomb.x + xDir*i*objectWidth, bomb.y + yDir*i*objectRealHeight, bomb.player,dir));
+          }
+      }
+      if (leave) {
+        break;
       }
     }
 }
 
-function explosion(x,y,player) {
+//for Editing
+function dot(x,y,color) {
+  this.x = x;
+  this.y = y;
+  this.width = 10;
+  this.height = 10;
+  this.color = color;
+  this.update = function(){
+    var ctx = myGameArea.context;
+    ctx.fillStyle = color;
+    ctx.fillRect(this.x,this.y,this.width,this.height);
+  }
+}
+
+function explosion(x,y,player,dir) {
     this.x = x;
     this.y = y;
     this.player = player;
-    this.width = objectWidth*(0.9);
-    this.height = objectHeight*(0.9);
+    this.dir = dir;
+    this.width = objectWidth;
+    this.height = objectHeight;
     this.frame = 0;
     this.type = "explosion";
     this.image = new Image();
-    this.image.src = "../sprites/" + this.type + "/" + this.type + this.frame + ".png";
-    this.counter = 50;
+    this.image.src = "../sprites/" + this.type + "/" + this.type + this.dir + this.frame + ".png";
+    this.counter = 100;
     var j = 0;
     this.update = function() {
       this.counter--;
       if (this.counter <= 0) {
         remove(this,explosions);
       }
+      this.frame = (this.counter) % 6;
       var ctx = myGameArea.context;
+      this.image.src = "../sprites/" + this.type + "/" + this.type + this.dir + this.frame + ".png";
       ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
     }
 }

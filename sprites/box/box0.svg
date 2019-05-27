@@ -15,7 +15,10 @@
    version="1.1"
    id="SVGRoot"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="box0.svg">
+   sodipodi:docname="box0.svg"
+   inkscape:export-filename="C:\Users\shoha\Desktop\Games\Bubbles\sprites\box\box0.png"
+   inkscape:export-xdpi="9.946125"
+   inkscape:export-ydpi="9.946125">
   <defs
      id="defs2031" />
   <sodipodi:namedview
@@ -26,7 +29,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.35355339"
-     inkscape:cx="1045.6223"
+     inkscape:cx="586.00289"
      inkscape:cy="997.3373"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -80,8 +83,8 @@
        id="rect1517-8-0-1-8-6"
        width="350.73981"
        height="1167.2805"
-       x="-355.67474"
-       y="-1167.2864"
+       x="-351.72528"
+       y="-1166.261"
        transform="scale(-1)" />
     <rect
        style="opacity:1;vector-effect:none;fill:#803300;fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:8.80448055;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"

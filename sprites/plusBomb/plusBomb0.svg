@@ -16,7 +16,10 @@
    version="1.1"
    id="SVGRoot"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
-   sodipodi:docname="plusBomb0.svg">
+   sodipodi:docname="plusBomb0.svg"
+   inkscape:export-filename="C:\Users\shoha\Desktop\Games\Bubbles\sprites\plusBomb\plusBomb0.png"
+   inkscape:export-xdpi="10.077024"
+   inkscape:export-ydpi="10.077024">
   <defs
      id="defs2031">
     <linearGradient
@@ -94,8 +97,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.35355339"
-     inkscape:cx="630.22319"
-     inkscape:cy="977.33479"
+     inkscape:cx="1070.0436"
+     inkscape:cy="974.50636"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
      showgrid="false"
@@ -112,7 +115,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -154,5 +157,12 @@
        d="m 854.185,850.85452 -150.36608,-110.52665 -181.88797,41.74766 58.65142,-177.16125 -95.91086,-160.085 186.61465,1.03497 122.61179,-140.68563 56.68278,177.8009 171.68907,73.1365 -151.58272,108.85202 z"
        inkscape:transform-center-x="-18.079628"
        inkscape:transform-center-y="-9.7942224" />
+    <rect
+       style="opacity:1;vector-effect:none;fill:#ffffff;fill-opacity:0;fill-rule:nonzero;stroke:#f7fcfd;stroke-width:4.6213398;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.01010102"
+       id="rect2015"
+       width="1900.703"
+       height="1900.703"
+       x="2.8284271"
+       y="5.1548333" />
   </g>
 </svg>
