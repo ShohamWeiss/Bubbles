@@ -1,9 +1,9 @@
 html {
-  background-color: black;
+  background-color: lightblue;
 }
 
 canvas {
-  background-color: white;
+  background-color: lightgreen;
 }
 .container {
   position: relative;

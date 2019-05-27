@@ -23,6 +23,9 @@ var myGameArea = {
 function updateGameArea() {
   objects.sort(function(a,b) {return a.y - b.y}); //make sure lower elements are in front
   myGameArea.clear(); //clear screen
+  var ctx = myGameArea.context;
+  ctx.fillStyle = "lightblue";
+  ctx.fillRect(0,0,screenWidth,objectsZ *2);
   for (var j = 0; j < objects.length; j++) {
     objects[j].update(); //draw each object
   }
@@ -55,8 +58,8 @@ function startGame() {
         }
       }
     }
-    player1 = new player(0,objectsZ,"ninja");
-    player2 = new player(objectWidth*15,objectHeight*7,"ninja");
+    player2 = new player(0,objectsZ,"ninja");
+    player1 = new player(objectWidth*15,objectHeight*7,"ninja");
 }
 
 //** For Editing
@@ -83,7 +86,7 @@ function player(x,y,character) {
   this.direction = "down";
   this.steps = playerMaxSteps;
   this.frame = 0;
-  this.speed = 6;
+  this.speed = 4;
   this.bombCount = 1;
   this.explosionRange = 2;
   this.stuck = false;
@@ -93,9 +96,9 @@ function player(x,y,character) {
       var ctx = myGameArea.context;
       ctx.drawImage(this.image,this.x, this.y, this.width, this.height);
       this.realx = this.x + 20;
-      this.realy = this.y + 10;
-      this.realWidth = this.width - 35;
-      this.realHeight = objectRealHeight*(0.5);
+      this.realy = this.y + 20;
+      this.realWidth = this.width - 40;
+      this.realHeight = objectRealHeight*(0.3);
       // ctx.fillStyle = "rgba(50,50,50,0.5)"
       // ctx.fillRect(this.realx,this.realy,this.realWidth,this.realHeight);
       move(this);
@@ -123,7 +126,7 @@ function move(object) {
     if (object.direction == "up" && checkCollision(object,0,-object.speed,objects)) {
       object.y-= object.speed;
       object.steps++;
-      object.frame = 0;
+      object.frame = Math.floor(object.steps/10) % 5;
     }
     if (object.direction == "down" && checkCollision(object,0,object.speed,objects)) {
       object.y+= object.speed;
@@ -146,7 +149,7 @@ function checkCollision(collider, plusX, plusY, collided) {
        }
        if (collided[j].type == "plusSpeed") {
          remove(collided[j],collided);
-         collider.speed += 1;
+         collider.speed += 0.5;
        }
        if (collided[j].type == "plusRange") {
          remove(collided[j],collided);
@@ -155,6 +158,9 @@ function checkCollision(collider, plusX, plusY, collided) {
        if (collided[j].type == "plusBomb") {
          remove(collided[j],collided);
          collider.bombCount += 1;
+       }
+       if (collided[j].type == "character" && collided[j].direction == "stuck") {
+         remove(collided[j],collided);
        }
     }
   }
@@ -180,29 +186,29 @@ function keys(e) {
     player1.direction = "down";
     player1.steps = 0;
   }
-  if (e.code == "Space") {
+  if (!player1.stuck && e.code == "ShiftRight") {
     if (player1.bombCount > 0) {
       objects.push(new bomb(player1.x, player1.y, player1));
       player1.bombCount -= 1;
     }
   }
-  if (e.code == "KeyD") {
+  if (!player2.stuck && e.code == "KeyD") {
     player2.direction = "right";
     player2.steps = 0;
   }
-  if (e.code == "KeyA") {
+  if (!player2.stuck && e.code == "KeyA") {
     player2.direction = "left";
     player2.steps = 0;
   }
-  if (e.code == "KeyW") {
+  if (!player2.stuck && e.code == "KeyW") {
     player2.direction = "up";
     player2.steps = 0;
   }
-  if (e.code == "KeyS") {
+  if (!player2.stuck && e.code == "KeyS") {
     player2.direction = "down";
     player2.steps = 0;
   }
-  if (e.code == "ShiftLeft") {
+  if (!player2.stuck && e.code == "ShiftLeft") {
     if (player2.bombCount > 0) {
       objects.push(new bomb(player2.x, player2.y, player2));
       player2.bombCount -= 1;
@@ -258,7 +264,7 @@ function bomb(x,y,player) {
     this.counter = 300;
     this.update = function() {
       this.counter--;
-      this.frame = Math.floor(this.counter/7) % 5;
+      // this.frame = Math.floor(this.counter/10) % 4;
       this.image.src = "../sprites/" + this.type + "/" + this.type + this.frame + ".png";
       if (Math.floor(this.counter/100) <= 0) {
         remove(this, objects);
@@ -332,18 +338,24 @@ function explosion(x,y,player,dir) {
     this.frame = 0;
     this.type = "explosion";
     this.image = new Image();
-    this.image.src = "../sprites/" + this.type + "/" + this.type + this.dir + this.frame + ".png";
-    this.counter = 100;
+    this.image.src = "../sprites/" + this.type + "/" + this.type + this.frame + ".png";
+    this.counter = 50;
     var j = 0;
     this.update = function() {
       this.counter--;
       if (this.counter <= 0) {
         remove(this,explosions);
       }
-      this.frame = (this.counter) % 6;
+      // this.frame = (this.counter) % 6;
       var ctx = myGameArea.context;
-      this.image.src = "../sprites/" + this.type + "/" + this.type + this.dir + this.frame + ".png";
-      ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+      // this.image.src = "../sprites/" + this.type + "/" + this.type + this.frame + ".png";
+      // ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+      ctx.fillStyle = "rgba(10,50,250,0.5)";
+      if (dir == "ver") {
+        ctx.fillRect(this.x + 20, this.y, this.width*(0.5), this.height);
+      } else {
+        ctx.fillRect(this.x, this.y + 20, this.width, this.height*(0.5));
+      }
     }
 }
 
