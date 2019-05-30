@@ -19,18 +19,25 @@ var myGameArea = {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 }
-
+var selected = false;
 function updateGameArea() {
-  objects.sort(function(a,b) {return a.y - b.y}); //make sure lower elements are in front
-  myGameArea.clear(); //clear screen
-  var ctx = myGameArea.context;
-  ctx.fillStyle = "lightblue";
-  ctx.fillRect(0,0,screenWidth,objectsZ *2);
-  for (var j = 0; j < objects.length; j++) {
-    objects[j].update(); //draw each object
-  }
-  for (var j = 0; j < explosions.length; j++) {
-    explosions[j].update();
+  if (selected) {
+    objects.sort(function(a,b) {return a.y - b.y}); //make sure lower elements are in front
+    myGameArea.clear(); //clear screen
+    var ctx = myGameArea.context;
+    ctx.fillStyle = "lightblue";
+    ctx.fillRect(0,0,screenWidth,objectsZ *2);
+    for (var j = 0; j < objects.length; j++) {
+      objects[j].update(); //draw each object
+    }
+    for (var j = 0; j < explosions.length; j++) {
+      explosions[j].update();
+    }
+  } else {
+    myGameArea.clear(); //clear screen
+    var ctx = myGameArea.context;
+    ctx.fillStyle = "red";
+    ctx.fillRect(50,50,screenWidth/3,screenHeight-150);
   }
   // for (var j = 0; j < editing.length; j++) {
   //   editing[j].update();
@@ -213,6 +220,9 @@ function keys(e) {
       objects.push(new bomb(player2.x, player2.y, player2));
       player2.bombCount -= 1;
     }
+  }
+  if (e.code === "KeyQ") {
+    selected = true;
   }
 }
 
