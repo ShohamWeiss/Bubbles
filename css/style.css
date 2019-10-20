@@ -5,11 +5,11 @@ html {
 canvas {
   background-color: lightgreen;
 }
-.container {
-  position: relative;
-  margin-left: 4vw;
-  margin-top: 5vh;
-}
+  .container {
+    position: relative;
+    margin-left: 4vw;
+    margin-top: 5vh;
+  }
 
 .column {
   width: 50%;

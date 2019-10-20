@@ -19,8 +19,16 @@ var myGameArea = {
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 }
+
+monsterNumber = 1;
+var monsters = [];
 var selected = false;
 function updateGameArea() {
+  if (monsters.length == 0) {
+    alert("you won");
+    monsterNumber += 1;
+    startGame(monsterNumber);
+  }
   if (selected) {
     objects.sort(function(a,b) {return a.y - b.y}); //make sure lower elements are in front
     myGameArea.clear(); //clear screen
@@ -50,23 +58,30 @@ var boxes = [];
 var editing = [];
 var player1;
 var player2;
+var firstTime = true;
 
-function startGame() {
-    myGameArea.start();
-    for (var j = 0; j < 12;j++) {
-      // editing.push(new line(0, j*(objectRealHeight) + objectsZ, screenWidth, 5, "blue"));
-      for (var k = 0; k < 16; k++) {
-        // editing.push( new line(k*objectWidth, 0, 5, screenHeight, "red"));
-        if (j < 2 && k < 2 || j > 9 && k > 13) {
-          continue;
-        }
-        if (Math.floor(Math.random() * 2) == 0) {
-          boxes.push(new box(k*objectWidth,j*(objectRealHeight) + objectsZ));
+function startGame(monsterNumber) {
+    if (firstTime) {
+      myGameArea.start();
+      for (var j = 0; j < 12;j++) {
+        // editing.push(new line(0, j*(objectRealHeight) + objectsZ, screenWidth, 5, "blue"));
+        for (var k = 0; k < 16; k++) {
+          // editing.push( new line(k*objectWidth, 0, 5, screenHeight, "red"));
+          if (j < 2 && k < 2 || j > 9 && k > 13 || j < 8 && j > 5) {
+            continue;
+          }
+          if (Math.floor(Math.random() * 2) == 0) {
+            boxes.push(new box(k*objectWidth,j*(objectRealHeight) + objectsZ));
+          }
         }
       }
+      player2 = new player(0,objectsZ,"ninja",false);
+      player1 = new player(objectWidth*15,objectHeight*7,"ninja",false);
+      firstTime = false;
     }
-    player2 = new player(0,objectsZ,"ninja");
-    player1 = new player(objectWidth*15,objectHeight*7,"ninja");
+    for (var i = 0; i < monsterNumber; i ++) {
+      monsters.push(new player(objectWidth*6,objectHeight*4,"ball",true))
+    }
 }
 
 //** For Editing
@@ -83,11 +98,12 @@ function line(x,y,width,height, color) {
   }
 //
 
-function player(x,y,character) {
+function player(x,y,character,isMonster) {
   objects.push(this);
   this.type = "character";
   this.x = x;
   this.y = y;
+  this.isMonster = isMonster;
   this.width = objectWidth;
   this.height = objectHeight;
   this.direction = "down";
@@ -116,6 +132,21 @@ function player(x,y,character) {
       this.frame = 0;
       this.stuck = true;
   }
+  this.monster = function() {
+      rand = Math.floor(Math.random()*10);
+      if (rand == 0) {
+        this.direction = "up";
+      }
+      if (rand == 1) {
+        this.direction = "down";
+      }
+      if (rand == 2) {
+        this.direction = "left";
+      }
+      if (rand == 3) {
+        this.direction = "right";
+      }
+  }
 }
 
 function move(object) {
@@ -140,11 +171,15 @@ function move(object) {
       object.steps++;
       object.frame = Math.floor(object.steps/10) % 5;
     }
+  } else if (object.isMonster) {
+      object.monster();
+      object.steps = 0;
   }
 }
 
 function checkCollision(collider, plusX, plusY, collided) {
   if (collider.realx + plusX < 0 || collider.realx + collider.realWidth + plusX > screenWidth || collider.realy + plusY < objectsZ || collider.y + collider.height + plusY > screenHeight) {
+    collider.steps = playerMaxSteps;
     return false;
   }
   for (var j = 0; j < objects.length; j++) {
@@ -168,6 +203,9 @@ function checkCollision(collider, plusX, plusY, collided) {
        }
        if (collided[j].type == "character" && collided[j].direction == "stuck") {
          remove(collided[j],collided);
+       }
+       if (collided[j].type == "character" && collided[j].isMonster && !collider.isMonster) {
+         // collider.direction = collided[j].direction;
        }
     }
   }
